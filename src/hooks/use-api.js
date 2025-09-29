@@ -37,6 +37,8 @@ export const useApi = () => {
             });
             return res;
         } catch (err) {
+            console.log('❌❌❌', err);
+
             setLoading(false);
             throw err;
         } finally {

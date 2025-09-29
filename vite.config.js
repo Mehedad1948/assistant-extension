@@ -6,10 +6,14 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: "http://lcoalhost:7777",
+        target: "http://localhost:7777",
         changeOrigin: true,
         secure: false,
-        rewrite: (path)=> path.replace(/^\/api/, "")
+        rewrite: (path) => {
+          console.log('👋👋👋', path);
+
+          return path.replace(/^\/api/, "")
+        }
       }
     }
   },
