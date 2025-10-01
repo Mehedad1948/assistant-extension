@@ -19,7 +19,6 @@ export const useAuth = ({ onAuth = false, onUnauth = false }) => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        console.log('❤️❤️❤️ getting',);
 
         const res = await getRequest("auth");
         if (res?.data) {
@@ -38,8 +37,6 @@ export const useAuth = ({ onAuth = false, onUnauth = false }) => {
         }
       } catch (err) {
         localStorage.removeItem(localStorageKeys.AUTH_TOKEN);
-        console.log('🚀🚀🚀', err);
-
         navigate("/login");
       }
     };

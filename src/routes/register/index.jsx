@@ -12,6 +12,7 @@ import Input from '../../components/input';
 import Button from '../../components/button';
 import Error from '../../components/error';
 import { actions } from '../../constants/actions';
+import { localStorageKeys } from '../../constants/local-storage';
 
 const RegisterRoute = () => {
   const { dispatch } = useAppContext();
@@ -36,9 +37,9 @@ const RegisterRoute = () => {
       setError(false);
       try {
         const res = await postRequest('auth/register', { ...values });
-        console.log('✅✅✅', res);
 
         if (res?.data) {
+          localStorage.setItem(localStorageKeys.AUTH_TOKEN, res.data.token);
           dispatch({
             type: actions.UPDATE_USER,
             payload: {
@@ -49,7 +50,7 @@ const RegisterRoute = () => {
           navigate('/');
         } else {
           console.log('❌❌');
-          
+
           setError('An error has occurred');
         }
       } catch (err) {
