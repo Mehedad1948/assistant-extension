@@ -7,6 +7,7 @@ import RootRoute from './routes/root';
 import UnverifiedRoute from './routes/unverified';
 import VerifiedRoute from './routes/verified';
 import VerifyRoute from './routes/verify';
+import Protected from './routes/protected';
 
 function App() {
   return (
@@ -14,11 +15,13 @@ function App() {
       <ToastContainer autoClose={1500} />
       <Routes>
         <Route path='/login' element={<LoginRoute />} />
-        <Route path='/register' element={<RegisterRoute  />} />
+        <Route path='/register' element={<RegisterRoute />} />
         <Route path='/unverified' element={<UnverifiedRoute />} />
         <Route path='/verified' element={<VerifiedRoute />} />
         <Route path='/verify/:token' element={<VerifyRoute />} />
-        <Route path='/' element={<RootRoute />} />
+        <Route element={<Protected />}>
+          <Route path='/' element={<RootRoute />} />
+        </Route>
       </Routes>
       <div className=''></div>;
     </>
