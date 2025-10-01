@@ -12,7 +12,6 @@ export const useAuth = ({ onAuth = false, onUnauth = false }) => {
   const { getRequest } = useApi();
   const navigate = useNavigate();
 
-  console.log('❌❌❌❌', state);
   
 
   const userDetails = state.user?.details;
@@ -51,7 +50,6 @@ export const useAuth = ({ onAuth = false, onUnauth = false }) => {
       if (token) {
         getUser();
       } else if (onUnauth) {
-        console.log({onUnauth});
         
         navigate(onUnauth);
       }
