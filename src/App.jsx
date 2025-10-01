@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import 'react-toastify/dist/ReactToastify.css';
+import { Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-import { Routes, Route } from 'react-router-dom';
+import 'react-toastify/dist/ReactToastify.css';
 import LoginRoute from './routes/login';
+import RegisterRoute from './routes/register';
 import RootRoute from './routes/root';
 import UnverifiedRoute from './routes/unverified';
 import VerifiedRoute from './routes/verified';
-import RegisterRoute from './routes/register';
+import VerifyRoute from './routes/verify';
 
 function App() {
   return (
@@ -17,6 +17,7 @@ function App() {
         <Route path='/register' element={<RegisterRoute  />} />
         <Route path='/unverified' element={<UnverifiedRoute />} />
         <Route path='/verified' element={<VerifiedRoute />} />
+        <Route path='/verify/:token' element={<VerifyRoute />} />
         <Route path='/' element={<RootRoute />} />
       </Routes>
       <div className=''></div>;
