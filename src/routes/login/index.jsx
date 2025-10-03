@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import get from 'lodash/get';
 import * as Yup from 'yup';
-
+import { localStorageKeys } from '../../constants/local-storage';
 import { useAppContext } from '../../context';
 import { useApi } from '../../hooks/use-api';
 import { actions } from '../../constants/actions';
@@ -34,6 +34,7 @@ const LoginRoute = () => {
       try {
         const res = await postRequest('auth/login', { ...values });
         if (res?.data) {
+          localStorage.setItem(localStorageKeys.AUTH_TOKEN, res.data.token);
           dispatch({
             type: actions.UPDATE_USER,
             payload: {

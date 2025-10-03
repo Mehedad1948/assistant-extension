@@ -7,6 +7,8 @@ const initialState = {
     details: null,
     token: null,
   },
+  links: [],
+  tags: [],
 };
 
 const AppContext = createContext(initialState);
@@ -17,6 +19,51 @@ const reducer = (state, action) => {
       return {
         ...state,
         user: action.payload,
+      };
+    }
+    case actions.ADD_LINK: {
+      return {
+        ...state,
+        links: [...state.links, action.payload],
+      };
+    }
+    case actions.UPDATE_LINKS: {
+      return {
+        ...state,
+        links: action.payload,
+      };
+    }
+    case actions.UPDATE_LINK: {
+      const linkIndex = state.links.findIndex(
+        (l) => l.linkId === action.payload.linkId
+      );
+
+      if (linkIndex === -1) return state;
+
+      const newLinks = [...state.links];
+      newLinks[linkIndex] = action.payload;
+
+      return {
+        ...state,
+        links: newLinks,
+      };
+    }
+    case actions.DELETE_LINK: {
+      return {
+        ...state,
+        links: state.links.filter((l) => l.linkId !== action.payload),
+      };
+    }
+    case actions.ADD_TAGS: {
+      return {
+        ...state,
+        tags: [...state.tags, ...action.payload],
+      };
+    }
+    case actions.UPDATE_TAGS: {
+      return {
+        ...state,
+        tags: action.payload,
       };
     }
     default: {
