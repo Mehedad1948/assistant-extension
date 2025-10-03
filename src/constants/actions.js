@@ -4,4 +4,6 @@ export const actions = {
   UPDATE_LINK: "UPDATE_LINK",
   ADD_LINK: "ADD_LINK",
   DELETE_LINK: "DELETE_LINK",
+  ADD_TAGS: "ADD_TAGS",
+  UPDATE_TAGS: "UPDATE_TAGS",
 };

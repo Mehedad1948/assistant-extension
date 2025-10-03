@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import get from "lodash/get";
-
+import isEqual from "lodash/isEqual";
 
 import Button from "./Button";
 import Dialog from "./Dialog";
@@ -10,61 +10,86 @@ import Error from "./Error";
 import { useAppContext } from '../context';
 import { useApi } from '../hooks/use-api';
 import { actions } from '../constants/actions';
+import TagSelector from './TagSelctor';
 
 const EditLink = ({ open, onClose, link }) => {
-  const [error, setError] = useState(false);
-  const { putRequest, deleteRequest } = useApi();
-  const { dispatch } = useAppContext();
-
-  const handleSave = async () => {
-    setError(false);
-    try {
-      const res = await putRequest(`links/${link.linkId}`, {});
-      if (res?.data) {
-        dispatch({
-          type: actions.UPDATE_LINK,
-          payload: res.data.link,
-        });
-        toast.success("Successfully saved link");
-        onClose();
-      } else {
-        setError("An error has occurred");
-      }
-    } catch (err) {
-      const errorMsg = get(
-        err,
-        "response.data.error",
-        "An error has occurred."
-      );
-      setError(errorMsg);
-    }
-  };
-
-  const handleDelete = async () => {
-    setError(false);
-    try {
-      const res = await deleteRequest(`links/${link.linkId}`);
-      if (res.status === 200) {
-        toast.success("Successfully deleted link");
-        dispatch({
-          type: actions.DELETE_LINK,
-          payload: link.linkId,
-        });
-        onClose();
-      } else {
-        setError("An error has occurred");
-      }
-    } catch (err) {
-      const errorMsg = get(
-        err,
-        "response.data.error",
-        "An error has occurred."
-      );
-      setError(errorMsg);
-    }
-  };
-
-  if (!link) return null;
+   const [tags, setTags] = useState([]);
+   const [error, setError] = useState(false);
+   const { putRequest, deleteRequest } = useApi();
+   const { dispatch } = useAppContext();
+ 
+   const handleSave = async () => {
+     setError(false);
+ 
+     // No changes to make
+     if (isEqual(tags, link.tags)) {
+       toast.success("Successfully saved link");
+       onClose();
+       return;
+     }
+ 
+     try {
+       const res = await putRequest(`links/${link.linkId}`, { tags });
+ 
+       if (res?.data) {
+         if (res.data.tags.length) {
+           dispatch({
+             type: actions.ADD_TAGS,
+             payload: res.data.tags,
+           });
+         }
+ 
+         dispatch({
+           type: actions.UPDATE_LINK,
+           payload: res.data.link,
+         });
+ 
+         toast.success("Successfully saved link");
+         onClose();
+       } else {
+         setError("An error has occured");
+       }
+     } catch (err) {
+       const errorMsg = get(
+         err,
+         "response.data.error",
+         "An error has occurred."
+       );
+       setError(errorMsg);
+     }
+   };
+ 
+   const handleDelete = async () => {
+     setError(false);
+     try {
+       const res = await deleteRequest(`links/${link.linkId}`);
+       if (res.status === 200) {
+         toast.success("Successfully deleted link");
+         dispatch({
+           type: actions.DELETE_LINK,
+           payload: link.linkId,
+         });
+         onClose();
+       } else {
+         setError("An error has occured");
+       }
+     } catch (err) {
+       const errorMsg = get(
+         err,
+         "response.data.error",
+         "An error has occurred."
+       );
+       setError(errorMsg);
+     }
+   };
+ 
+   useEffect(() => {
+     if (link) {
+       setTags(link.tags);
+     }
+   }, [link]);
+ 
+   if (!link) return null;
 
   return (
     <Dialog open={open} onClose={onClose}>
@@ -77,6 +102,7 @@ const EditLink = ({ open, onClose, link }) => {
           <Input label="URL" value={link.url} readOnly />
         </div>
 
+        <TagSelector tags={tags} setTags={setTags} />
         <Button onClick={handleSave}>Save Link</Button>
 
         <div>

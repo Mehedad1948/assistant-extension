@@ -8,87 +8,92 @@ import Button from "./Button";
 import Error from "./Error";
 import Dialog from "./Dialog";
 import Input from "./Input";
-import { useApi } from '../hooks/use-api';
-import { useAppContext } from '../context';
-import { actions } from '../constants/actions';
+import { useApi } from "../hooks/use-api";
+import { useAppContext } from "../context";
+import { actions } from "../constants/actions";
+import TagSelector from './TagSelctor';
 
-const AddLink = ({ open, onClose }) => {
-    const [error, setError] = useState<string | null>(null);
-    const { loading, postRequest } = useApi();
-    const { dispatch } = useAppContext();
+interface Tag {
+  title: string;
+}
 
-    const formik = useFormik({
-        initialValues: {
-            url: "",
-        },
-        validationSchema: Yup.object({
-            url: Yup.string()
-                .url("A valid URL is required")
-                .required("A URL is required"),
-        }),
-        onSubmit: async (values) => {
-            try {
-                const res = await postRequest("links", { ...values });
-                if (res?.data) {
-                    if (!res.data.isNew) {
-                        toast.error("Link already exists");
-                        handleClose();
-                        return;
-                    }
+interface AddLinkProps {
+  open: boolean;
+  onClose: () => void;
+}
 
-                    dispatch({
-                        type: actions.ADD_LINK,
-                        payload: res.data.link,
-                    });
+const AddLink: React.FC<AddLinkProps> = ({ open, onClose }) => {
+  const [tags, setTags] = useState<Tag[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const { loading, postRequest } = useApi();
+  const { dispatch } = useAppContext();
 
-                    toast.success("Successfully saved link");
-                    handleClose();
-                } else {
-                    setError("An error has occured");
-                }
-            } catch (err) {
-                const errorMsg = get(
-                    err,
-                    "response.data.error",
-                    "An error has occurred."
-                );
-                setError(errorMsg);
-            }
-        },
-    });
+  const formik = useFormik({
+    initialValues: { url: "" },
+    validationSchema: Yup.object({
+      url: Yup.string().url("A valid URL is required").required("A URL is required"),
+    }),
+    onSubmit: async (values) => {
+      try {
+        const res = await postRequest("links", { ...values, tags });
+        if (res?.data) {
+          if (!res.data.isNew) {
+            toast.error("Link already exists");
+            handleClose();
+            return;
+          }
 
-    const handleClose = () => {
-        formik.resetForm();
-        setError(null);
-        onClose();
-    };
+          if (res.data.tags?.length) {
+            dispatch({ type: actions.ADD_TAGS, payload: res.data.tags });
+          }
 
-    return (
-        <Dialog open={open} onClose={handleClose}>
-            <div className="space-y-4">
-                <h2 className="text-gray-800 text-xl font-semibold">Add new link</h2>
+          dispatch({ type: actions.ADD_LINK, payload: res.data.link });
 
-                {error && <Error>{error}</Error>}
+          toast.success("Successfully saved link");
+          handleClose();
+        } else {
+          setError("An error has occurred");
+        }
+      } catch (err) {
+        const errorMsg = get(err, "response.data.error", "An error has occurred.");
+        setError(errorMsg);
+      }
+    },
+  });
 
-                <div>
-                    <Input
-                        id="url"
-                        name="url"
-                        label="URL"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.url}
-                        error={formik.touched.url && formik.errors.url}
-                        placeholder="Enter a url"
-                    />
-                </div>
+  const handleClose = () => {
+    formik.resetForm();
+    setTags([]);
+    setError(null);
+    onClose();
+  };
 
-                <Button type="button" onClick={()=> formik.handleSubmit()} loading={loading}>
-                    Add Link
-                </Button>
-            </div>
-        </Dialog>
-    );
+  return (
+    <Dialog open={open} onClose={handleClose}>
+      <div className="space-y-4">
+        <h2 className="text-gray-800 text-xl font-semibold">Add new link</h2>
+
+        {error && <Error>{error}</Error>}
+
+        <Input
+          id="url"
+          name="url"
+          label="URL"
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          value={formik.values.url}
+          error={formik.touched.url && formik.errors.url}
+          placeholder="Enter a URL"
+        />
+
+        <TagSelector tags={tags} setTags={setTags} />
+
+        <Button type="button" onClick={() => formik.handleSubmit()} isLoading={loading}>
+          Add Link
+        </Button>
+      </div>
+    </Dialog>
+  );
 };
 
 export default AddLink;

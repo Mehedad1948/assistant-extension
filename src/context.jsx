@@ -8,6 +8,7 @@ const initialState = {
     token: null,
   },
   links: [],
+  tags: [],
 };
 
 const AppContext = createContext(initialState);
@@ -51,6 +52,18 @@ const reducer = (state, action) => {
       return {
         ...state,
         links: state.links.filter((l) => l.linkId !== action.payload),
+      };
+    }
+    case actions.ADD_TAGS: {
+      return {
+        ...state,
+        tags: [...state.tags, ...action.payload],
+      };
+    }
+    case actions.UPDATE_TAGS: {
+      return {
+        ...state,
+        tags: action.payload,
       };
     }
     default: {

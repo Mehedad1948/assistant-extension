@@ -1,24 +1,32 @@
 import Truncate from "react-truncate-markup";
-import Card from './Card';
+import Card from "./Card";
+import Tag from "./Tag";
+
+interface TagType {
+  tagId: string;
+  title: string;
+}
 
 interface LinkSummaryProps {
   link: {
     linkId: string;
     url: string;
     title: string;
+    tags?: TagType[];
   };
   onEdit: (id: string) => void;
 }
 
-const LinkSummary = ({ link, onEdit }: LinkSummaryProps) => {
+const LinkSummary: React.FC<LinkSummaryProps> = ({ link, onEdit }) => {
   if (!link) return null;
 
   const hostname = new URL(link.url).hostname;
 
   const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault(); // stop navigating when clicking Edit
+    e.preventDefault();
     onEdit(link.linkId);
   };
+console.log({link});
 
   return (
     <a
@@ -48,12 +56,23 @@ const LinkSummary = ({ link, onEdit }: LinkSummaryProps) => {
             {hostname}
           </span>
 
-          {/* Title with truncate */}
+          {/* Title */}
           <Truncate lines={3}>
-            <h2 className="text-gray-800 text-base font-medium">
-              {link.title}
-            </h2>
+            <h2 className="text-gray-800 text-base font-medium">{link.title}</h2>
           </Truncate>
+
+          {/* Tags */}
+          {link.tags && link.tags.length > 0 && (
+            <div className="mt-auto mt-2">
+                <div className="flex space-x-2 flex-wrap">
+                  {link.tags.map((tag) => (
+                    <div key={tag.tagId}>
+                      <Tag title={tag.title} />
+                    </div>
+                  ))}
+                </div>
+            </div>
+          )}
         </div>
       </Card>
     </a>

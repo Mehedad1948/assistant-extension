@@ -16,12 +16,20 @@ import EditLink from '../../components/EditLink';
 const RootRoute = () => {
   const [isCreating, setCreating] = useState(false);
   const [isEditing, setEditing] = useState(false);
-  const { loading, getRequest } = useApi();
+  const { loading: apiLoading, getRequest } = useApi();
   const { state, dispatch } = useAppContext();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const getTags = async () => {
+      const res = await getRequest('tags');
+      dispatch({
+        type: actions.UPDATE_TAGS,
+        payload: get(res, 'data.tags', []),
+      });
+    };
+
     const getLinks = async () => {
-      
       const res = await getRequest('links');
       dispatch({
         type: actions.UPDATE_LINKS,
@@ -29,10 +37,16 @@ const RootRoute = () => {
       });
     };
 
-    getLinks();
+    // Fetch tags and links in parallel
+    Promise.all([getTags(), getLinks()])
+      .then(() => setLoading(false))
+      .catch((err) => {
+        console.error('Failed to fetch data', err);
+        setLoading(false);
+      });
   }, []);
 
-  if (loading) {
+  if (loading || apiLoading) {
     return (
       <div className='bg-gray-50 min-h-screen w-full flex flex-col'>
         <Header />
